@@ -6,7 +6,7 @@
 #    By: thblack- <thblack-@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/24 14:57:58 by thblack-          #+#    #+#              #
-#    Updated: 2025/10/06 19:00:19 by thblack-         ###   ########.fr        #
+#    Updated: 2025/10/06 19:08:33 by thblack-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,9 @@ INC_DIR		= inc
 
 # PROJECT SOURCES: Explicitly states
 SRC_FILES	= template.c
-SRC			= $(addprefix $(SRC_DIR)/, $(SRC_FILES))
+SRC_DEV		= $(shell find src -name "*.c")
+SRC			= $(SRC_DEV)
+# SRC			= $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 
 # PROJECT HEADER
 HEADER		= $(INC_DIR)/template.h
