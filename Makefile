@@ -14,9 +14,13 @@
 PROJECT		= template
 NAME		= template
 
+# MODE
+MODE		= $(if $(filter 1,$(DEBUG)),debug,release)
+DEBUG		?= 0
+
 # PROJECT DIRECTORIES
 SRC_DIR		= src
-OBJ_DIR		= obj
+OBJ_DIR		= obj/$(MODE)
 INC_DIR		= inc
 
 # PROJECT SOURCES: Explicitly states
@@ -29,7 +33,10 @@ SRC			= $(SRC_DEV)
 HEADER		= $(INC_DIR)/template.h
 
 # PROJECT OBJECTS
-OBJ		= $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC))
+OBJ			= $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC))
+OBJ_DIRS	= $(sort $(dir $(OBJ)))
+DEPS		= $(OBJ:.o=.d)
+
 
 # TOOLS
 CC			= cc
@@ -60,12 +67,19 @@ LIBS		= $(LIBFT)
 # MESSAGES
 START		= @echo "==== THOMASROFF MAKEFILE =============" \
 			  && echo "==== STARTED: $(shell date '+%Y-%m-%d %H:%M:%S') ===="
-BUILD_PROJ	= @echo "==== BUILDING $(PROJECT) ==============="
+BUILD_PROJ	= @echo "==== BUILDING $(PROJECT) ===============" \
+				&& echo "compiling in $(MODE) mode"
 BUILD_LIBFT	= @echo "==== BUILDING LIBFT =================="
 COMPILED	= @echo "$(PROJECT) compiled successfully"
 FINISH		= @echo "==== BUILD COMPLETE ==================" \
 			  && echo "==== FINISHED: $(shell date '+%Y-%m-%d %H:%M:%S') ==="
 SPACER		= @echo ""
+
+ifeq ($(DEBUG),1)
+CFLAGS		+= $(CDEBUG)
+else
+CFLAGS		+= $(CGENERAL)
+endif
 
 # <<<<<<< MAIN TARGETS >>>>>>>
 
@@ -82,28 +96,56 @@ $(LIBFT_A):
 	@$(MAKE_LIB) $(LIBFT_DIR) $(MAKE_QUIET)
 	$(SPACER)
 
-$(OBJ_DIR):
-	@$(MKDIR) $(OBJ_DIR)
+$(OBJ_DIRS):
+	@$(MKDIR) $@
 
- $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADER) | $(OBJ_DIRS)
 	@$(CC) $(CFLAGS) $(INC) -c $< -o $@
+
+-include $(DEPS)
 
 .SECONDARY: $(OBJ) 
 
-# <<<<<<< PHONY TARGETS >>>>>>>
+# <<<<<<< MAIN PHONY TARGETS >>>>>>>
+
+debug:
+	@$(MAKE) DEBUG=1 re $(MAKE_QUIET)
+
+release:
+	@$(MAKE) DEBUG=0 re $(MAKE_QUIET)
 
 clean:
 	@echo "Removing object files"
-	@$(RMDIR) $(OBJ_DIR)
+	@$(RMDIR) obj
 	@$(MAKE_LIB) libft clean $(MAKE_QUIET)
 
 fclean:
 	@echo "Removing object files"
-	@$(RMDIR) $(OBJ_DIR)
+	@$(RMDIR) obj
 	@echo "Removing static library files"
 	@$(RMFILE) $(NAME)
 	@$(MAKE_LIB) libft fclean $(MAKE_QUIET)
 
 re: fclean all
 
-.PHONY: all clean fclean re debug
+# <<<<<<< EXTRA PHONY TARGETS >>>>>>>
+
+run: $(NAME)
+	@echo "Running $(NAME)..."
+	@./$(NAME)
+
+runval: $(NAME)
+	@echo "Running valgrind $(NAME)..."
+	@valgrind --leak-check=full ./$(NAME)
+
+runleak: $(NAME)
+	@echo "Running valgrind leaks $(NAME)..."
+	@valgrind --leak-check=full --show-leak-kinds=yes --track-fds=all ./$(NAME)
+
+retry: clean all run
+
+reval: debug runval
+
+releak: debug runleak
+
+.PHONY: all clean fclean re debug release run runval runleak retry reval releak
