@@ -56,11 +56,11 @@ MKDIR		= mkdir -p
 
 # LIBFT LINKING
 LIBFT_DIR	= ./libft
-LIBFT_H		= $(LIBFT_DIR)/libft.h
+LIBFT_H		= $(LIBFT_DIR)/inc/libft.h
 LIBFT_A		= $(LIBFT_DIR)/libft.a
 
 # INCLUDE PATHS AND LIBRARIES
-INC			= -I. -I$(LIBFT_DIR) -I$(INC_DIR)
+INC			= -I. -I$(LIBFT_DIR) -I$(LIBFT_DIR)/inc -I$(INC_DIR)
 LIBFT		= -L$(LIBFT_DIR) -lft
 LIBS		= $(LIBFT)
 

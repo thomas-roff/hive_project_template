@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/template.h"
+#include "template.h"
 
 int	main(int argc, char **argv)
 {

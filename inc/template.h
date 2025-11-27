@@ -13,7 +13,7 @@
 #ifndef TEMPLATE_H
 # define TEMPLATE_H
 
-# include "../libft/inc/libft.h"
+# include "libft.h"
 
 // CODES FOR ERROR TRACKING
 // SUCCESSFUL EXECUTION
